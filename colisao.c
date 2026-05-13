@@ -1,6 +1,5 @@
 #include "colisao.h"
 
-/* Todos os retangulos de colisao usam x/y como centro. */
 static RetanguloColisao criarRetanguloFrango(Frango *f)
 {
     RetanguloColisao r;

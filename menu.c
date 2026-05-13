@@ -4,6 +4,7 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 static BotaoMenu botaoIniciar = {0.0f, 0.42f, 0.58f, 0.14f, "INICIAR", 0};
 static BotaoMenu botaoSair = {0.0f, 0.23f, 0.58f, 0.14f, "SAIR", 0};
@@ -12,7 +13,22 @@ static BotaoMenu botaoMenu = {0.0f, 0.23f, 0.58f, 0.14f, "MENU", 0};
 static BotaoMenu botaoReiniciar = {0.0f, 0.30f, 0.62f, 0.14f, "REINICIAR", 0};
 static BotaoMenu botaoMenuFinal = {0.0f, 0.11f, 0.58f, 0.14f, "MENU", 0};
 
-/* Converte coordenadas do mouse da janela para o sistema ortografico do jogo. */
+static void desenharRetanguloMenu(float x, float y, float largura, float altura)
+{
+    glBegin(GL_QUADS);
+    glVertex2f(x, y);
+    glVertex2f(x + largura, y);
+    glVertex2f(x + largura, y + altura);
+    glVertex2f(x, y + altura);
+    glEnd();
+}
+
+static void desenharTextoGrandeCentralizado(float x, float y, const char *texto)
+{
+    float ajuste = (float)strlen(texto) * 0.011f;
+    desenharTextoGrande(x - ajuste, y, texto);
+}
+
 static void converterMouse(int mouseX, int mouseY, float *x, float *y)
 {
     float largura = (float)jogo.larguraJanela;
@@ -30,12 +46,16 @@ static void converterMouse(int mouseX, int mouseY, float *x, float *y)
 static void desenharFundoMenu(void)
 {
     glColor3f(0.06f, 0.18f, 0.25f);
-    glBegin(GL_QUADS);
-    glVertex2f(-1.0f, -0.15f);
-    glVertex2f(1.0f, -0.15f);
-    glVertex2f(1.0f, 1.15f);
-    glVertex2f(-1.0f, 1.15f);
-    glEnd();
+    desenharRetanguloMenu(-1.0f, -0.15f, 2.0f, 1.30f);
+
+    glColor3f(0.16f, 0.55f, 0.23f);
+    desenharRetanguloMenu(-1.0f, -0.15f, 2.0f, 0.22f);
+
+    glColor3f(0.16f, 0.16f, 0.17f);
+    desenharRetanguloMenu(-1.0f, 0.07f, 2.0f, 0.13f);
+
+    glColor3f(0.06f, 0.34f, 0.78f);
+    desenharRetanguloMenu(-1.0f, 0.20f, 2.0f, 0.12f);
 
     glColor3f(0.95f, 0.92f, 0.30f);
     glBegin(GL_TRIANGLES);
@@ -68,16 +88,25 @@ static void desenharBotao(BotaoMenu *botao)
     glVertex2f(e, c);
     glEnd();
 
+    glColor3f(0.04f, 0.12f, 0.14f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(e, b);
+    glVertex2f(d, b);
+    glVertex2f(d, c);
+    glVertex2f(e, c);
+    glEnd();
+    glLineWidth(1.0f);
+
     glColor3f(1.0f, 1.0f, 1.0f);
-    desenharTextoGrande(botao->x - botao->largura * 0.25f,
-                        botao->y - 0.02f, botao->rotulo);
+    desenharTextoGrandeCentralizado(botao->x, botao->y - 0.02f, botao->rotulo);
 }
 
 void desenharMenuInicial(void)
 {
     desenharFundoMenu();
     glColor3f(1.0f, 0.94f, 0.20f);
-    desenharTextoGrande(-0.28f, 0.78f, "CHICKEN RUN");
+    desenharTextoGrandeCentralizado(0.0f, 0.78f, "CHICKEN RUN");
     glColor3f(0.88f, 0.94f, 1.0f);
     desenharTexto(-0.47f, 0.66f, "Atravesse pistas e rios sem perder as vidas.");
     desenharBotao(&botaoIniciar);

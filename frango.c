@@ -4,7 +4,6 @@
 
 #define PI 3.1415926535f
 
-/* Mantem o jogador dentro dos limites horizontais do mundo visivel. */
 static void limitarFrangoNaTela(Frango *f)
 {
     if (f->x < -LIMITE_X_FRANGO) {
@@ -19,12 +18,24 @@ static void desenharCirculo(float x, float y, float raio)
 {
     int i;
 
-    /* Aproxima um circulo usando um leque de triangulos do OpenGL. */
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(x, y);
     for (i = 0; i <= 24; i++) {
         float angulo = (2.0f * PI * (float)i) / 24.0f;
         glVertex2f(x + cosf(angulo) * raio, y + sinf(angulo) * raio);
+    }
+    glEnd();
+}
+
+static void desenharElipse(float x, float y, float raioX, float raioY)
+{
+    int i;
+
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(x, y);
+    for (i = 0; i <= 28; i++) {
+        float angulo = (2.0f * PI * (float)i) / 28.0f;
+        glVertex2f(x + cosf(angulo) * raioX, y + sinf(angulo) * raioY);
     }
     glEnd();
 }
@@ -43,15 +54,14 @@ void desenharFrango(Frango *f)
     float t = TAMANHO_FRANGO;
 
     glColor3f(f->corR, f->corG, f->corB);
-    glBegin(GL_QUADS);
-    glVertex2f(f->x - t, f->y - t);
-    glVertex2f(f->x + t, f->y - t);
-    glVertex2f(f->x + t, f->y + t);
-    glVertex2f(f->x - t, f->y + t);
-    glEnd();
+    desenharElipse(f->x, f->y - t * 0.10f, t * 1.10f, t * 0.95f);
 
     glColor3f(1.0f, 0.96f, 0.45f);
     desenharCirculo(f->x, f->y + t * 0.95f, t * 0.75f);
+
+    glColor3f(0.96f, 0.72f, 0.16f);
+    desenharElipse(f->x - t * 0.45f, f->y - t * 0.10f,
+                   t * 0.34f, t * 0.48f);
 
     glColor3f(1.0f, 0.45f, 0.05f);
     glBegin(GL_TRIANGLES);
@@ -60,11 +70,19 @@ void desenharFrango(Frango *f)
     glVertex2f(f->x + t * 0.15f, f->y + t * 0.65f);
     glEnd();
 
+    glColor3f(0.95f, 0.06f, 0.04f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(f->x - t * 0.28f, f->y + t * 1.55f);
+    glVertex2f(f->x - t * 0.05f, f->y + t * 1.18f);
+    glVertex2f(f->x + t * 0.12f, f->y + t * 1.55f);
+    glEnd();
+
     glColor3f(0.05f, 0.05f, 0.05f);
     glPointSize(4.0f);
     glBegin(GL_POINTS);
     glVertex2f(f->x + t * 0.25f, f->y + t * 1.15f);
     glEnd();
+    glPointSize(3.0f);
 
     glColor3f(0.95f, 0.35f, 0.05f);
     glBegin(GL_LINES);
@@ -72,6 +90,15 @@ void desenharFrango(Frango *f)
     glVertex2f(f->x - t * 0.35f, f->y - t * 1.45f);
     glVertex2f(f->x + t * 0.35f, f->y - t);
     glVertex2f(f->x + t * 0.35f, f->y - t * 1.45f);
+    glEnd();
+
+    glBegin(GL_TRIANGLES);
+    glVertex2f(f->x - t * 0.45f, f->y - t * 1.45f);
+    glVertex2f(f->x - t * 0.25f, f->y - t * 1.45f);
+    glVertex2f(f->x - t * 0.35f, f->y - t * 1.32f);
+    glVertex2f(f->x + t * 0.25f, f->y - t * 1.45f);
+    glVertex2f(f->x + t * 0.45f, f->y - t * 1.45f);
+    glVertex2f(f->x + t * 0.35f, f->y - t * 1.32f);
     glEnd();
 }
 

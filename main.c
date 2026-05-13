@@ -14,12 +14,17 @@
 
 Frango frangoJogador;
 
+#define PONTOS_POR_FAIXA 12
+#define BONUS_VITORIA_BASE 360
+#define PENALIDADE_BONUS_SEGUNDO 6
+#define TEMPO_MAX_FRAME 0.05f
+#define INTERVALO_TIMER_MS 16
+
 static float offsetCamera = 0.0f;
 static int faixaRecorde = 0;
 static int tempoAnterior = 0;
 static int tempoInicioPausa = 0;
 
-/* Prototipos exigidos pelos callbacks registrados no GLUT. */
 void renderizar(void);
 void redimensionar(int w, int h);
 void processarTeclado(unsigned char tecla, int x, int y);
@@ -38,7 +43,6 @@ static void configurarOpenGL(void)
 
 static void prepararPartidaCompleta(void)
 {
-    /* Reinicia todos os sistemas que dependem do estado da partida. */
     iniciarPartida();
     iniciarFrango(&frangoJogador);
     iniciarObstaculos();
@@ -61,7 +65,7 @@ static void atualizarPontuacaoPorFaixa(void)
 {
     if (frangoJogador.faixaAtual > faixaRecorde) {
         int diferenca = frangoJogador.faixaAtual - faixaRecorde;
-        somarPontuacao(diferenca * 10);
+        somarPontuacao(diferenca * PONTOS_POR_FAIXA);
         tocarSom(SOM_PONTUACAO);
         faixaRecorde = frangoJogador.faixaAtual;
     }
@@ -70,7 +74,7 @@ static void atualizarPontuacaoPorFaixa(void)
 static void finalizarComVitoria(void)
 {
     int segundos = jogo.tempoDecorrido / 1000;
-    int bonus = 300 - segundos * 5;
+    int bonus = BONUS_VITORIA_BASE - segundos * PENALIDADE_BONUS_SEGUNDO;
 
     if (bonus < 0) {
         bonus = 0;
@@ -133,7 +137,6 @@ static void verificarEventosDeColisao(float deltaTempo)
                                            obstaculos, totalObstaculos);
     TipoFaixa faixa = obterTipoFaixa(frangoJogador.faixaAtual);
 
-    /* Carros matam por colisao direta; rios exigem estar sobre uma tora. */
     if (resultado == COLISAO_CARRO) {
         perderVida(SOM_COLISAO);
         return;
@@ -307,8 +310,8 @@ void atualizarJogo(int valor)
     }
     deltaTempo = (float)(agora - tempoAnterior) / 1000.0f;
     tempoAnterior = agora;
-    if (deltaTempo > 0.05f) {
-        deltaTempo = 0.05f;
+    if (deltaTempo > TEMPO_MAX_FRAME) {
+        deltaTempo = TEMPO_MAX_FRAME;
     }
 
     if (jogo.estadoAtual == ESTADO_JOGANDO) {
@@ -324,7 +327,7 @@ void atualizarJogo(int valor)
 
     atualizarParticulas(deltaTempo);
     glutPostRedisplay();
-    glutTimerFunc(16, atualizarJogo, 0);
+    glutTimerFunc(INTERVALO_TIMER_MS, atualizarJogo, 0);
 }
 
 int main(int argc, char **argv)
@@ -348,7 +351,7 @@ int main(int argc, char **argv)
     glutSpecialFunc(processarTeclaEspecial);
     glutMouseFunc(processarMouse);
     glutPassiveMotionFunc(processarMovimentoMouse);
-    glutTimerFunc(16, atualizarJogo, 0);
+    glutTimerFunc(INTERVALO_TIMER_MS, atualizarJogo, 0);
 
     tempoAnterior = glutGet(GLUT_ELAPSED_TIME);
     atexit(finalizarAudio);

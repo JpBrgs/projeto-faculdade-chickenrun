@@ -1,7 +1,6 @@
 #include "jogo.h"
 #include <GL/glut.h>
 
-/* Estado global compartilhado pelos modulos do jogo. */
 JogoEstado jogo;
 
 void iniciarJogo(int largura, int altura)

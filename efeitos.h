@@ -1,7 +1,7 @@
 #ifndef EFEITOS_H
 #define EFEITOS_H
 
-#define MAX_PARTICULAS 100
+#define MAX_PARTICULAS 120
 
 typedef struct {
     float x, y;

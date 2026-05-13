@@ -2,13 +2,11 @@
 #define OBSTACULO_H
 
 #define MAX_OBSTACULOS 50
-#define NUM_FAIXAS 10
 #define META_VITORIA 10
 
 typedef enum {
     TIPO_CARRO,
-    TIPO_TORA,
-    TIPO_RIO_VAZIO
+    TIPO_TORA
 } TipoObstaculo;
 
 typedef struct {

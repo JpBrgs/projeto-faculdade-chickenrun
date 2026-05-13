@@ -7,7 +7,12 @@
 Obstaculo obstaculos[MAX_OBSTACULOS];
 int totalObstaculos = 0;
 
-/* Guarda novos obstaculos sem ultrapassar o vetor fixo do projeto. */
+#define CARROS_POR_FAIXA 3
+#define TORAS_POR_FAIXA 3
+#define VELOCIDADE_PISTA 0.34f
+#define VELOCIDADE_RIO 0.24f
+#define VARIACAO_VELOCIDADE 0.035f
+
 static void adicionarObstaculo(Obstaculo novo)
 {
     if (totalObstaculos >= MAX_OBSTACULOS) {
@@ -32,6 +37,16 @@ static void desenharCorpoRetangular(Obstaculo *o)
     glEnd();
 }
 
+static void desenharDetalheRetangular(float x, float y, float largura, float altura)
+{
+    glBegin(GL_QUADS);
+    glVertex2f(x - largura * 0.5f, y - altura * 0.5f);
+    glVertex2f(x + largura * 0.5f, y - altura * 0.5f);
+    glVertex2f(x + largura * 0.5f, y + altura * 0.5f);
+    glVertex2f(x - largura * 0.5f, y + altura * 0.5f);
+    glEnd();
+}
+
 static void desenharCarro(Obstaculo *o)
 {
     glColor3f(o->corR, o->corG, o->corB);
@@ -43,6 +58,16 @@ static void desenharCarro(Obstaculo *o)
     glVertex2f(o->x + o->largura * 0.22f, o->y + o->altura * 0.50f);
     glVertex2f(o->x, o->y + o->altura * 0.90f);
     glEnd();
+
+    glColor3f(1.0f, 0.93f, 0.34f);
+    desenharDetalheRetangular(o->x + o->largura * 0.42f, o->y,
+                              o->largura * 0.10f, o->altura * 0.26f);
+    desenharDetalheRetangular(o->x - o->largura * 0.42f, o->y,
+                              o->largura * 0.10f, o->altura * 0.26f);
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    desenharDetalheRetangular(o->x, o->y - o->altura * 0.05f,
+                              o->largura * 0.55f, o->altura * 0.08f);
 
     glColor3f(0.02f, 0.02f, 0.02f);
     glPointSize(5.0f);
@@ -56,6 +81,10 @@ static void desenharTora(Obstaculo *o)
 {
     glColor3f(o->corR, o->corG, o->corB);
     desenharCorpoRetangular(o);
+
+    glColor3f(0.72f, 0.42f, 0.16f);
+    desenharDetalheRetangular(o->x, o->y + o->altura * 0.22f,
+                              o->largura * 0.84f, o->altura * 0.12f);
 
     glColor3f(0.25f, 0.12f, 0.04f);
     glBegin(GL_LINES);
@@ -89,17 +118,19 @@ void gerarFaixa(int indiceFaixa)
         return;
     }
 
-    /* Pistas recebem carros; rios recebem toras que carregam o frango. */
-    quantidade = (faixa == FAIXA_RIO) ? 3 : 2;
+    quantidade = (faixa == FAIXA_RIO) ? TORAS_POR_FAIXA : CARROS_POR_FAIXA;
     for (i = 0; i < quantidade; i++) {
         Obstaculo o;
         float direcao = (indiceFaixa % 2 == 0) ? 1.0f : -1.0f;
         float deslocamento = (float)((indiceFaixa * 17 + i * 13) % 20) / 100.0f;
+        float velocidadeBase = (faixa == FAIXA_RIO) ? VELOCIDADE_RIO : VELOCIDADE_PISTA;
 
         o.x = -0.85f + (float)i * 0.78f + deslocamento;
         o.y = obterYFaixa(indiceFaixa) + ALTURA_FAIXA * 0.5f;
         o.altura = ALTURA_FAIXA * 0.48f;
-        o.velocidade = direcao * (0.28f + 0.04f * (float)(indiceFaixa % 4));
+        o.velocidade = direcao *
+                       (velocidadeBase +
+                        VARIACAO_VELOCIDADE * (float)(indiceFaixa % 5));
         o.ativo = 1;
 
         if (faixa == FAIXA_RIO) {

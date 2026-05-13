@@ -12,9 +12,27 @@ static void desenharRetangulo(float x, float y, float largura, float altura)
     glEnd();
 }
 
+static void desenharChegada(float y)
+{
+    int i;
+    float larguraCasa = 0.16f;
+
+    desenharGrama(X_ESQUERDA_MUNDO, y, LARGURA_MUNDO, ALTURA_FAIXA);
+    for (i = 0; i < 13; i++) {
+        float x = X_ESQUERDA_MUNDO + (float)i * larguraCasa;
+
+        if (i % 2 == 0) {
+            glColor3f(0.96f, 0.96f, 0.92f);
+        } else {
+            glColor3f(0.08f, 0.08f, 0.08f);
+        }
+        desenharRetangulo(x, y + ALTURA_FAIXA * 0.68f,
+                          larguraCasa, ALTURA_FAIXA * 0.22f);
+    }
+}
+
 TipoFaixa obterTipoFaixa(int indiceFaixa)
 {
-    /* A sequencia alterna grama, pistas e rios para criar variedade. */
     if (indiceFaixa <= 0 || indiceFaixa >= META_VITORIA) {
         return FAIXA_GRAMA;
     }
@@ -35,14 +53,19 @@ float obterYFaixa(int indiceFaixa)
 void desenharCenario(float offsetCamera)
 {
     int i;
-    (void)offsetCamera;
+    int primeiraFaixa = (int)(offsetCamera / ALTURA_FAIXA) - 2;
 
-    /* Desenha algumas faixas extras para cobrir a camera durante o scroll. */
-    for (i = -1; i <= META_VITORIA + 4; i++) {
+    if (primeiraFaixa < -1) {
+        primeiraFaixa = -1;
+    }
+
+    for (i = primeiraFaixa; i <= META_VITORIA + 4; i++) {
         float y = obterYFaixa(i);
         TipoFaixa tipo = obterTipoFaixa(i);
 
-        if (tipo == FAIXA_GRAMA) {
+        if (i == META_VITORIA) {
+            desenharChegada(y);
+        } else if (tipo == FAIXA_GRAMA) {
             desenharGrama(X_ESQUERDA_MUNDO, y, LARGURA_MUNDO, ALTURA_FAIXA);
         } else if (tipo == FAIXA_PISTA) {
             desenharPista(X_ESQUERDA_MUNDO, y, LARGURA_MUNDO, ALTURA_FAIXA);
@@ -59,6 +82,9 @@ void desenharGrama(float x, float y, float largura, float altura)
     glColor3f(0.18f, 0.58f, 0.22f);
     desenharRetangulo(x, y, largura, altura);
 
+    glColor3f(0.14f, 0.48f, 0.18f);
+    desenharRetangulo(x, y, largura, altura * 0.18f);
+
     glColor3f(0.55f, 0.86f, 0.35f);
     glPointSize(2.0f);
     glBegin(GL_POINTS);
@@ -74,6 +100,10 @@ void desenharPista(float x, float y, float largura, float altura)
 {
     glColor3f(0.17f, 0.17f, 0.18f);
     desenharRetangulo(x, y, largura, altura);
+
+    glColor3f(0.24f, 0.24f, 0.25f);
+    desenharRetangulo(x, y + altura * 0.08f, largura, altura * 0.08f);
+    desenharRetangulo(x, y + altura * 0.84f, largura, altura * 0.08f);
 
     glColor3f(0.10f, 0.10f, 0.11f);
     glBegin(GL_LINES);
@@ -92,6 +122,9 @@ void desenharRio(float x, float y, float largura, float altura)
 
     glColor3f(0.05f, 0.36f, 0.82f);
     desenharRetangulo(x, y, largura, altura);
+
+    glColor3f(0.04f, 0.24f, 0.60f);
+    desenharRetangulo(x, y, largura, altura * 0.18f);
 
     glColor3f(0.45f, 0.78f, 1.0f);
     glBegin(GL_LINES);
