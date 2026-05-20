@@ -11,7 +11,7 @@ LIBS = -lglut -lGLU -lGL -lopenal -lm
 endif
 
 SRCS = main.c jogo.c frango.c obstaculo.c cenario.c \
-       colisao.c efeitos.c audio.c hud.c menu.c captura_tela.c
+       colisao.c efeitos.c audio.c hud.c menu.c captura_tela.c visual.c
 
 $(TARGET): $(SRCS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS) $(LIBS)

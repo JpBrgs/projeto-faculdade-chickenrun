@@ -11,7 +11,7 @@ typedef struct {
 void desenharMenuInicial(void);
 void desenharTelaPausa(void);
 void desenharTelaVitoria(int pontuacao, int tempo);
-void desenharTelaDerrota(int pontuacao);
+void desenharTelaDerrota(int pontuacao, int tempo);
 int verificarCliqueEmBotao(BotaoMenu *botao, int mouseX, int mouseY);
 void processarCliqueMouse(int mouseX, int mouseY);
 void atualizarDestaqueMenu(int mouseX, int mouseY);

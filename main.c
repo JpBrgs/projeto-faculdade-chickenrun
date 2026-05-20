@@ -1,8 +1,15 @@
 #include <GL/glut.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
+
+#ifdef _WIN32
+#include <direct.h>
+#include <windows.h>
+#endif
 
 #include "audio.h"
+#include "captura_tela.h"
 #include "cenario.h"
 #include "colisao.h"
 #include "efeitos.h"
@@ -80,7 +87,7 @@ static void finalizarComVitoria(void)
         bonus = 0;
     }
     somarPontuacao(bonus);
-    salvarMelhorPontuacao();
+    salvarPontuacaoClassificacao();
     jogo.estadoAtual = ESTADO_VITORIA;
     tocarSom(SOM_VITORIA);
 }
@@ -93,7 +100,7 @@ static void perderVida(TipoSom som)
     frangoJogador.vidas--;
 
     if (verificarDerrota(&frangoJogador)) {
-        salvarMelhorPontuacao();
+        salvarPontuacaoClassificacao();
         jogo.estadoAtual = ESTADO_DERROTA;
         tocarSom(SOM_DERROTA);
         return;
@@ -182,6 +189,7 @@ void renderizar(void)
 
     if (jogo.estadoAtual == ESTADO_MENU) {
         desenharMenuInicial();
+        desenharBotaoCaptura();
         glutSwapBuffers();
         return;
     }
@@ -202,9 +210,10 @@ void renderizar(void)
     } else if (jogo.estadoAtual == ESTADO_VITORIA) {
         desenharTelaVitoria(jogo.pontuacao, jogo.tempoDecorrido);
     } else if (jogo.estadoAtual == ESTADO_DERROTA) {
-        desenharTelaDerrota(jogo.pontuacao);
+        desenharTelaDerrota(jogo.pontuacao, jogo.tempoDecorrido);
     }
     desenharFlashTela();
+    desenharBotaoCaptura();
     glutSwapBuffers();
 }
 
@@ -235,6 +244,10 @@ void processarTeclado(unsigned char tecla, int x, int y)
     }
     if (normalizada == 'p') {
         alternarPausa();
+        return;
+    }
+    if (normalizada == 'q') {
+        salvarCapturaTelaDownloads();
         return;
     }
     if (normalizada == 'r') {
@@ -274,6 +287,12 @@ void processarMouse(int botao, int estado, int x, int y)
     EstadoJogo estadoAnterior;
 
     if (botao != GLUT_LEFT_BUTTON || estado != GLUT_DOWN) {
+        return;
+    }
+
+    if (clicouNoBotaoCaptura(x, y)) {
+        salvarCapturaTelaDownloads();
+        glutPostRedisplay();
         return;
     }
 
@@ -332,6 +351,22 @@ void atualizarJogo(int valor)
 
 int main(int argc, char **argv)
 {
+   
+#ifdef _WIN32
+    {
+        char exePath[MAX_PATH];
+        if (GetModuleFileNameA(NULL, exePath, MAX_PATH) > 0) {
+            char *p = exePath + strlen(exePath) - 1;
+            while (p > exePath && *p != '\\' && *p != '/') p--;
+            if (p > exePath) {
+                *p = '\0';
+                _chdir(exePath);
+            }
+        }
+    }
+#else
+    (void)argc; (void)argv;
+#endif
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowSize(900, 700);
